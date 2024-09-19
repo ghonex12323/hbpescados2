@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo HB Pescados - Controle de Estoque</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #f0e68c;
+            background-image: url('C:\\Users\\Micro\\Desktop\\logo\\logoempresa.jpeg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin: 0;
+        }
+        .logo {
+            width: 30%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #7499eb;
+            margin-top: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .section {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #333;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        button {
+            background-color: #7499eb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #c82333;
+        }
+        input, select {
+            width: calc(100% - 20px);
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .net-profit {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    <img src="C:\\Users\\Micro\\Desktop\\logo\\logoempresa.jpeg" class="logo" alt="Logo">
+</h1>
+
+<div class="section" id="loginSection">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuário" required>
+    <input type="password" id="password" placeholder="Senha" required>
+    <button onclick="login()">Entrar</button>
+    <p>Não tem uma conta? <a href="#" onclick="showRegister()">Registrar</a></p>
+</div>
+
+<div class="section" id="registerSection" style="display: none;">
+    <h2>Registrar Funcionário</h2>
+    <input type="text" id="employeeName" placeholder="Nome do Funcionário" required>
+    <input type="text" id="employeeUsername" placeholder="Usuário" required>
+    <input type="password" id="employeePassword" placeholder="Senha" required>
+    <button onclick="registerEmployee()">Registrar</button>
+    <p>Já tem uma conta? <a href="#" onclick="showLogin()">Login</a></p>
+</div>
+
+<div class="section" id="mainContent" style="display: none;">
+    <button onclick="logout()">Sair</button>
+    <h2>Adicionar Produto:</h2>
+    <input type="text" id="productName" placeholder="Nome do Produto" required>
+    <input type="number" id="productQuantity" placeholder="Quantidade" required>
+    <input type="number" id="supplierPrice" placeholder="Preço de Fornecedor" step="0.01" required>
+    <input type="number" id="sellingPrice" placeholder="Preço de Venda" step="0.01" required>
+    <button onclick="addProduct()">Adicionar Produto</button>
+
+    <h2>Lista de Produtos:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço de Fornecedor</th>
+                <th>Preço de Venda</th>
+                <th>Lucro Mensal</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="productList"></tbody>
+    </table>
+
+    <h2>Vendas:</h2>
+    <select id="sellProductSelect"></select>
+    <input type="number" id="sellQuantity" placeholder="Quantidade" required>
+    <select id="paymentMethod">
+        <option value="Dinheiro">DINHEIRO</option>
+        <option value="Pix">PIX</option>
+        <option value="Link de Pagamento">LINK DE PAGAMENTO</option>
+        <option value="Cartão de Crédito">CARTÃO DE CRÉDITO</option>
+        <option value="Cartão de Débito">CARTÃO DE DÉBITO</option>
+    </select>
+  <div style="display: flex; justify-content: flex-start; align-items: center;">
+    <img src="C:\\Users\\Micro\\Desktop\\logo\\logopix.jpeg" alt="Logopix" style="width: 10%; height: auto; margin: 10px;">
+    <img src="C:\\Users\\Micro\\Desktop\\logo\\logodinheiro.jpeg" alt="Logodinheiro" style="width: 10%; height: auto; margin: 10px;">
+    <img src="C:\\Users\\Micro\\Desktop\\logo\\logomaquineta.jpeg" alt="Logomaquineta" style="width: 10%; height: auto; margin: 10px;">
+    <img src="C:\\Users\\Micro\\Desktop\\logo\\logolinkpagamento.jpeg" alt="Logolinkpagamento" style="width: 10%; height: auto; margin: 10px;">
+</div>
+
+    <button onclick="sellProduct()">Vender Produto</button>
+
+    <h2>Resumo das Vendas:</h2>
+    <div id="salesSummary">
+        <p><strong>Lucro Total: </strong><span id="totalProfit">0</span></p>
+        <p><strong>Total de Vendas: </strong><span id="totalSales">0</span></p>
+        <p><strong>Total de Custos: </strong><span id="totalCosts">0</span></p>
+        <p><strong>Total de Despesas: </strong><span id="totalExpenses">0</span></p>
+        <p><strong>Lucro Real (após Despesas): </strong><span id="netProfit" class="net-profit">0</span></p>
+    </div>
+    <button onclick="clearSalesSummary()">Limpar Resumo de Vendas</button>
+    <button onclick="clearSales()">Limpar Vendas</button>
+
+    <h2>Adicionar Despesa:</h2>
+    <input type="text" id="expenseDescription" placeholder="Descrição da Despesa" required>
+    <input type="number" id="expenseValue" placeholder="Valor Total da Despesa" step="0.01" required>
+    <input type="number" id="expenseQuantity" placeholder="Quantidade de Itens" required>
+    <button onclick="addExpense()">Adicionar Despesa</button>
+
+    <h2>Resumo de Despesas:</h2>
+    <div id="expensesSummary">
+        <p><strong>Total de Despesas: </strong><span id="totalExpensesDisplay">0</span></p>
+    </div>
+    <button onclick="clearExpenses()">Limpar Despesas</button>
+
+    <h2>Relatórios:</h2>
+    <div id="salesReport">
+        <h3>Relatório de Vendas</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade Vendida</th>
+                    <th>Lucro Gerado</th>
+                    <th>Forma de Pagamento</th>
+                    <th>Data da Venda</th>
+                </tr>
+            </thead>
+            <tbody id="salesReportBody"></tbody>
+        </table>
+    </div>
+
+    <div id="expensesReport">
+        <h3>Relatório de Despesas:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor Total</th>
+                    <th>Preço Unitário</th>
+                </tr>
+            </thead>
+            <tbody id="expensesReportBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let products = JSON.parse(localStorage.getItem('products')) || [];
+    let totalProfit = parseFloat(localStorage.getItem('totalProfit')) || 0;
+    let totalSales = parseFloat(localStorage.getItem('totalSales')) || 0;
+    let totalCosts = parseFloat(localStorage.getItem('totalCosts')) || 0;
+    let totalExpenses = parseFloat(localStorage.getItem('totalExpenses')) || 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadProducts();
+            updateSalesSummary();
+        }
+    });
+
+    function showLogin() {
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('registerSection').style.display = 'none';
+    }
+
+    function showRegister() {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('registerSection').style.display = 'block';
+    }
+
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+            localStorage.setItem('isLoggedIn', 'true');
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadProducts();
+            updateSalesSummary();
+        } else {
+            alert('Usuário ou senha incorretos!');
+        }
+    }
+
+    function registerEmployee() {
+        const name = document.getElementById('employeeName').value;
+        const username = document.getElementById('employeeUsername').value;
+        const password = document.getElementById('employeePassword').value;
+
+        if (users.find(u => u.username === username)) {
+            alert('Usuário já existe!');
+            return;
+        }
+
+        users.push({ name, username, password });
+        localStorage.setItem('users', JSON.stringify(users));
+        alert('Funcionário registrado com sucesso!');
+        showLogin();
+    }
+
+    function logout() {
+        localStorage.setItem('isLoggedIn', 'false');
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('mainContent').style.display = 'none';
+    }
+
+    function addProduct() {
+        const productName = document.getElementById('productName').value;
+        const productQuantity = parseInt(document.getElementById('productQuantity').value);
+        const supplierPrice = parseFloat(document.getElementById('supplierPrice').value);
+        const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
+
+        const product = {
+            name: productName,
+            quantity: productQuantity,
+            supplierPrice: supplierPrice,
+            sellingPrice: sellingPrice
+        };
+
+        products.push(product);
+        localStorage.setItem('products', JSON.stringify(products));
+        loadProducts();
+        document.getElementById('productName').value = '';
+        document.getElementById('productQuantity').value = '';
+        document.getElementById('supplierPrice').value = '';
+        document.getElementById('sellingPrice').value = '';
+    }
+
+    function loadProducts() {
+        const productList = document.getElementById('productList');
+        productList.innerHTML = '';
+        products.forEach((product, index) => {
+            const row = `<tr>
+                <td>${product.name}</td>
+                <td>${product.quantity}</td>
+                <td>${product.supplierPrice.toFixed(2)}</td>
+                <td>${product.sellingPrice.toFixed(2)}</td>
+                <td>${((product.sellingPrice - product.supplierPrice) * product.quantity).toFixed(2)}</td>
+                <td>
+                    <button onclick="removeProduct(${index})">Remover</button>
+                </td>
+            </tr>`;
+            productList.innerHTML += row;
+        });
+        updateSellProductSelect();
+    }
+
+    function removeProduct(index) {
+        products.splice(index, 1);
+        localStorage.setItem('products', JSON.stringify(products));
+        loadProducts();
+    }
+
+    function updateSellProductSelect() {
+        const sellProductSelect = document.getElementById('sellProductSelect');
+        sellProductSelect.innerHTML = '';
+        products.forEach((product, index) => {
+            const option = `<option value="${index}">${product.name} (Estoque: ${product.quantity})</option>`;
+            sellProductSelect.innerHTML += option;
+        });
+    }
+
+    function sellProduct() {
+        const productIndex = document.getElementById('sellProductSelect').value;
+        const sellQuantity = parseInt(document.getElementById('sellQuantity').value);
+        const paymentMethod = document.getElementById('paymentMethod').value;
+
+        const product = products[productIndex];
+        if (product.quantity < sellQuantity) {
+            alert('Quantidade insuficiente em estoque!');
+            return;
+        }
+
+        product.quantity -= sellQuantity;
+        const profit = (product.sellingPrice - product.supplierPrice) * sellQuantity;
+        totalSales += sellQuantity;
+        totalProfit += profit;
+        totalCosts += product.supplierPrice * sellQuantity;
+
+        // Atualiza o localStorage com os novos valores
+        localStorage.setItem('products', JSON.stringify(products));
+        localStorage.setItem('totalProfit', totalProfit);
+        localStorage.setItem('totalSales', totalSales);
+        localStorage.setItem('totalCosts', totalCosts);
+
+        const salesReportBody = document.getElementById('salesReportBody');
+        const date = new Date().toLocaleString();
+        const row = `<tr>
+            <td>${product.name}</td>
+            <td>${sellQuantity}</td>
+            <td>${profit.toFixed(2)}</td>
+            <td>${paymentMethod}</td>
+            <td>${date}</td>
+        </tr>`;
+        salesReportBody.innerHTML += row;
+
+        loadProducts();
+        updateSalesSummary();
+        document.getElementById('sellQuantity').value = '';
+    }
+
+    function updateSalesSummary() {
+        document.getElementById('totalProfit').innerText = totalProfit.toFixed(2);
+        document.getElementById('totalSales').innerText = totalSales.toFixed(2);
+        document.getElementById('totalCosts').innerText = totalCosts.toFixed(2);
+        totalExpenses = parseFloat(localStorage.getItem('totalExpenses')) || 0;
+        document.getElementById('totalExpenses').innerText = totalExpenses.toFixed(2);
+        document.getElementById('netProfit').innerText = (totalProfit - totalExpenses).toFixed(2);
+    }
+
+    function clearSalesSummary() {
+        totalProfit = 0;
+        totalSales = 0;
+        totalCosts = 0;
+        localStorage.setItem('totalProfit', totalProfit);
+        localStorage.setItem('totalSales', totalSales);
+        localStorage.setItem('totalCosts', totalCosts);
+        updateSalesSummary();
+    }
+
+    function clearSales() {
+        const salesReportBody = document.getElementById('salesReportBody');
+        salesReportBody.innerHTML = '';
+        totalSales = 0;
+        totalProfit = 0;
+        totalCosts = 0;
+        localStorage.setItem('totalSales', totalSales);
+        localStorage.setItem('totalProfit', totalProfit);
+        localStorage.setItem('totalCosts', totalCosts);
+        updateSalesSummary();
+    }
+
+    function addExpense() {
+        const description = document.getElementById('expenseDescription').value;
+        const value = parseFloat(document.getElementById('expenseValue').value);
+        const quantity = parseInt(document.getElementById('expenseQuantity').value);
+
+        if (isNaN(value) || isNaN(quantity)) {
+            alert('Por favor, preencha todos os campos corretamente!');
+            return;
+        }
+
+        totalExpenses += value;
+        localStorage.setItem('totalExpenses', totalExpenses);
+        updateSalesSummary();
+
+        const expensesReportBody = document.getElementById('expensesReportBody');
+        const row = `<tr>
+            <td>${description}</td>
+            <td>${value.toFixed(2)}</td>
+            <td>${(value / quantity).toFixed(2)}</td>
+        </tr>`;
+        expensesReportBody.innerHTML += row;
+
+        document.getElementById('expenseDescription').value = '';
+        document.getElementById('expenseValue').value = '';
+        document.getElementById('expenseQuantity').value = '';
+    }
+
+    function clearExpenses() {
+        const expensesReportBody = document.getElementById('expensesReportBody');
+        expensesReportBody.innerHTML = '';
+        totalExpenses = 0;
+        localStorage.setItem('totalExpenses', totalExpenses);
+        updateSalesSummary();
+    }
+</script>
+</body>
+</html>
